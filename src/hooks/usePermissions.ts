@@ -1,9 +1,9 @@
-import Geolocation from '@react-native-community/geolocation';
 import {useEffect} from 'react';
+import {Platform} from 'react-native';
 import {check, PERMISSIONS, RESULTS} from 'react-native-permissions';
 
 export function usePermissions() {
-  function locationPermission() {
+  function androidLocationPermission() {
     check(PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION).then(result => {
       switch (result) {
         case RESULTS.UNAVAILABLE:
@@ -17,18 +17,10 @@ export function usePermissions() {
     });
   }
 
-  function geolocationPermission() {
-    Geolocation.requestAuthorization(
-      () => {},
-      e => {
-        console.log('geolocationPermission:', e);
-      },
-    );
-  }
-
   useEffect(() => {
-    locationPermission();
-    // geolocationPermission();
+    if (Platform.OS === 'android') {
+      androidLocationPermission();
+    }
   }, []);
 
   return {};
