@@ -62,7 +62,7 @@ export function SelectedRideModal({
               style={[styles.blackText, styles.headerText, styles.boldText]}>
               Ride Request
             </Text>
-            <Spacer size={8} />
+            <Spacer size={12} />
             <Text>
               <Text>name: </Text>
               <Text style={[styles.blackText, styles.headerText]}>
@@ -135,7 +135,8 @@ const styles = StyleSheet.create({
     width: '70%',
     backgroundColor: 'white',
     borderRadius: 20,
-    padding: 35,
+    paddingVertical: 20,
+    paddingHorizontal: 24,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: {
@@ -154,7 +155,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-end',
     gap: 12,
-    width: '80%',
+    width: '100%',
   },
   button: {
     borderRadius: 20,
