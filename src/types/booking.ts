@@ -17,115 +17,21 @@ export type ReverseGeoCodeResponse = {
     compound_code: string;
     global_code: string;
   };
-  results: [
-    {
-      address_components: object[];
-      formatted_address: string;
-      geometry: object[];
-      place_id: string;
-      plus_code: object[];
-      types: object[];
-    },
-    {
-      address_components: object[];
-      formatted_address: string;
-      geometry: object[];
-      place_id: string;
-      plus_code: object[];
-      types: object[];
-    },
-    {
-      address_components: object[];
-      formatted_address: string;
-      geometry: object[];
-      place_id: string;
-      types: object[];
-    },
-    {
-      address_components: object[];
-      formatted_address: string;
-      geometry: object[];
-      place_id: string;
-      types: object[];
-    },
-    {
-      address_components: object[];
-      formatted_address: string;
-      geometry: object[];
-      place_id: string;
-      types: object[];
-    },
-    {
-      address_components: object[];
-      formatted_address: string;
-      geometry: object[];
-      place_id: string;
-      plus_code: object[];
-      types: object[];
-    },
-    {
-      address_components: object[];
-      formatted_address: string;
-      geometry: object[];
-      place_id: string;
-      types: object[];
-    },
-    {
-      address_components: object[];
-      formatted_address: string;
-      geometry: object[];
-      place_id: string;
-      types: object[];
-    },
-    {
-      address_components: object[];
-      formatted_address: string;
-      geometry: object[];
-      place_id: string;
-      types: object[];
-    },
-    {
-      address_components: object[];
-      formatted_address: string;
-      geometry: object[];
-      place_id: string;
-      types: object[];
-    },
-    {
-      address_components: object[];
-      formatted_address: string;
-      geometry: object[];
-      place_id: string;
-      types: object[];
-    },
-    {
-      address_components: object[];
-      formatted_address: string;
-      geometry: object[];
-      place_id: 'ChIJi8MeVwPKlzMRH8FpEHXV0Wk';
-      types: object[];
-    },
-    {
-      address_components: object[];
-      formatted_address: 'Metro Manila, Philippines';
-      geometry: object[];
-      place_id: 'ChIJLzIwE6bJlzMRp1iM6AKFnz4';
-      types: object[];
-    },
-    {
-      address_components: object[];
-      formatted_address: 'Metro Manila, Philippines';
-      geometry: object[];
-      place_id: string;
-      types: object[];
-    },
-    {
-      address_components: object[];
-      formatted_address: string;
-      geometry: object[];
-      place_id: string;
-      types: object[];
-    },
-  ];
-  status: 'OK';
+  results: {
+    address_components: object[];
+    formatted_address: string;
+    geometry: object[];
+    place_id: string;
+    plus_code: object[];
+    types: object[];
+  }[];
+  status: string;
 };
+
+export type RideStatus =
+  | 'pending'
+  | 'accepted'
+  | 'declined'
+  | 'started'
+  | 'picked-up'
+  | 'dropped-off';

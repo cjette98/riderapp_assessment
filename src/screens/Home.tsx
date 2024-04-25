@@ -8,8 +8,12 @@ import Icon from 'react-native-vector-icons/Entypo';
 import {SelectedRideModal} from '../components/SelectedRideModal';
 import {useBookingMutations} from '../services/mutations/booking';
 import {useRandomizeRideLocations} from '../hooks/useRandomizeRideLocations';
+import {useDispatch} from 'react-redux';
+import {setSelectedRideRequest} from '../redux/booking.slice';
+import {Alert} from 'react-native';
 
 export default function Home() {
+  const dispatch = useDispatch();
   const {initialLocation, getInitialState} = useCurrentLocation();
   const {rideRequests} = useRandomizeRideLocations(initialLocation);
   const {onGetGeocodeName} = useBookingMutations();
@@ -24,20 +28,31 @@ export default function Home() {
       latlng: `${item.dropoff.lat},${item.dropoff.lng}`,
     };
 
-    const pickup = (await onGetGeocodeName.mutateAsync(
-      pickUpPayload,
-    )) as ReverseGeoCodeResponse;
-    const dropoff = (await onGetGeocodeName.mutateAsync(
-      dropOffPayload,
-    )) as ReverseGeoCodeResponse;
+    try {
+      const pickup = (await onGetGeocodeName.mutateAsync(
+        pickUpPayload,
+      )) as ReverseGeoCodeResponse;
+      const dropoff = (await onGetGeocodeName.mutateAsync(
+        dropOffPayload,
+      )) as ReverseGeoCodeResponse;
 
-    const mapItem = {
-      ...item,
-      pickup: {...item.pickup, name: pickup.results[0]?.formatted_address},
-      dropoff: {...item.dropoff, name: dropoff.results[0]?.formatted_address},
-    };
-    setSelected(mapItem);
-    setShowSelected(true);
+      const mappedItem = {
+        ...item,
+        pickup: {
+          ...item.pickup,
+          name: pickup.results[0]?.formatted_address || 'Invalid Pick up',
+        },
+        dropoff: {
+          ...item.dropoff,
+          name: dropoff.results[0]?.formatted_address || 'Invalid Drop off',
+        },
+      };
+      setSelected(mappedItem);
+      dispatch(setSelectedRideRequest(mappedItem));
+      setShowSelected(true);
+    } catch (error) {
+      Alert.alert('Something went wrong', 'Please try again');
+    }
   }
 
   useEffect(() => {

@@ -31,7 +31,7 @@ export function useRandomizeRideLocations(initialLocation: Region | undefined) {
         return item;
       });
 
-      return requests;
+      return requests.splice(Math.floor(Math.random() * 190), 9);
     }
     return [];
   }, [initialLocation]);

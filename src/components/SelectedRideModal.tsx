@@ -2,7 +2,9 @@ import React from 'react';
 import {RideRequest} from '../types/booking';
 import {Modal, TouchableOpacity, StyleSheet, Text, View} from 'react-native';
 import {Spacer} from './Spacer';
-import {minutesToDuration} from '../helpers/stringHelpers';
+import {miToKm, minutesToDuration} from '../helpers/stringHelpers';
+import {useNavigation} from '@react-navigation/native';
+import {useRideContents} from '../hooks/useRideContents';
 
 interface Props extends Partial<RideRequest> {
   visible: boolean;
@@ -19,35 +21,23 @@ export function SelectedRideModal({
   pickup,
   dropoff,
 }: Props) {
+  const navigation = useNavigation();
   const onHideModal = () => {
     setVisible(false);
   };
 
-  const getKeyValue = (index: number) => {
-    if (!index) {
-      return 'Distance';
-    }
-    if (index === 1) {
-      return 'Arrive in';
-    }
-    if (index === 2) {
-      return 'Fare';
-    }
-    return '';
+  const onPressAccept = () => {
+    onHideModal();
+    setTimeout(() => {
+      navigation.navigate('Request' as never);
+    }, 400);
   };
 
-  const getItemValue = (index: number) => {
-    if (!index) {
-      return `${ride_distance_miles} mi`;
-    }
-    if (index === 1) {
-      return `${minutesToDuration(Number(ride_duration_minutes))}`;
-    }
-    if (index === 2) {
-      return `₱${fare_amount}`;
-    }
-    return '';
-  };
+  const {getKeyValue, getItemValue} = useRideContents(
+    ride_distance_miles || 0,
+    ride_duration_minutes || 0,
+    fare_amount || 0,
+  );
 
   return (
     <Modal
@@ -75,12 +65,7 @@ export function SelectedRideModal({
               <View key={index}>
                 <Text>
                   <Text>{getKeyValue(index)}</Text>
-                  <Text
-                    style={[
-                      styles.blackText,
-                      styles.bodyText,
-                      styles.boldText,
-                    ]}>
+                  <Text style={[styles.blackText, styles.boldText]}>
                     {`: ${getItemValue(index)}`}
                   </Text>
                 </Text>
@@ -91,16 +76,14 @@ export function SelectedRideModal({
             <Spacer size={8} />
             <Text>
               <Text>pick up: </Text>
-              <Text
-                style={[styles.blackText, styles.bodyText, styles.boldText]}>
+              <Text style={[styles.blackText, styles.boldText]}>
                 {pickup?.name}
               </Text>
             </Text>
             <Spacer size={12} />
             <Text>
               <Text>drop off: </Text>
-              <Text
-                style={[styles.blackText, styles.bodyText, styles.boldText]}>
+              <Text style={[styles.blackText, styles.boldText]}>
                 {dropoff?.name}
               </Text>
             </Text>
@@ -109,7 +92,7 @@ export function SelectedRideModal({
           <View style={styles.buttonsContainer}>
             <TouchableOpacity
               style={[styles.button, styles.buttonAccept]}
-              onPress={onHideModal}>
+              onPress={onPressAccept}>
               <Text style={[styles.boldText, styles.whiteText]}>Accept</Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -182,12 +165,6 @@ const styles = StyleSheet.create({
   headerText: {
     fontSize: 18,
     textAlign: 'center',
-  },
-  bodyText: {
-    fontSize: 14,
-  },
-  subtitleText: {
-    fontSize: 18,
   },
   modalText: {
     marginBottom: 15,
