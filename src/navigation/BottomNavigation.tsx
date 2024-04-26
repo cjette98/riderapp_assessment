@@ -2,7 +2,7 @@
 import React from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import Home from '../screens/Home';
-import Requests from '../screens/Requests';
+import RequestsHistory from '../screens/RequestsHistory';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 const Tab = createBottomTabNavigator();
@@ -19,8 +19,8 @@ export function BottomTabsNavigator() {
         }}
       />
       <Tab.Screen
-        name="Requests"
-        component={Requests}
+        name="History"
+        component={RequestsHistory}
         options={{
           headerShown: false,
           tabBarIcon: ({color}) => (

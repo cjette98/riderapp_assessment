@@ -14,8 +14,8 @@ export function useCurrentLocation() {
       setInitialLocation({
         latitude: MANILA_LAT,
         longitude: MANILA_LNG,
-        latitudeDelta: 0.0043,
-        longitudeDelta: 0.0034,
+        latitudeDelta: 0.0053,
+        longitudeDelta: 0.0054,
       });
     } else {
       Geolocation.getCurrentPosition(

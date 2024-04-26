@@ -2,7 +2,6 @@ import React from 'react';
 import {RideRequest} from '../types/booking';
 import {Modal, TouchableOpacity, StyleSheet, Text, View} from 'react-native';
 import {Spacer} from './Spacer';
-import {miToKm, minutesToDuration} from '../helpers/stringHelpers';
 import {useNavigation} from '@react-navigation/native';
 import {useRideContents} from '../hooks/useRideContents';
 
@@ -98,7 +97,7 @@ export function SelectedRideModal({
             <TouchableOpacity
               style={[styles.button, styles.buttonDecline]}
               onPress={onHideModal}>
-              <Text style={styles.blackText}>Decline</Text>
+              <Text style={styles.blackText}>Cancel</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -114,7 +113,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalView: {
-    minHeight: '50%',
+    minHeight: '60%',
     width: '70%',
     backgroundColor: 'white',
     borderRadius: 20,

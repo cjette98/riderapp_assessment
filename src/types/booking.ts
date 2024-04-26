@@ -6,6 +6,7 @@ export type RideRequest = {
   fare_amount: number;
   ride_duration_minutes: number;
   ride_distance_miles: number;
+  status?: RideStatus | string;
 };
 
 export type LocationNamePayload = {

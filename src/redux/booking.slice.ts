@@ -1,8 +1,14 @@
 import {createSlice} from '@reduxjs/toolkit';
 import type {PayloadAction} from '@reduxjs/toolkit';
-import {RideRequest} from '../types/booking';
+import {RideRequest, RideStatus} from '../types/booking';
 
-const selectedRideRequestInitState: RideRequest = {
+interface State {
+  selectedRideRequest: RideRequest;
+  selectedStatus: string;
+  savedRideRequests: RideRequest[];
+}
+
+export const selectedRideRequestInitState: RideRequest = {
   ride_id: 0,
   passenger_name: '',
   pickup: {lat: 0, lng: 0, name: ''},
@@ -10,10 +16,13 @@ const selectedRideRequestInitState: RideRequest = {
   fare_amount: 0,
   ride_duration_minutes: 0,
   ride_distance_miles: 0,
+  status: 'pending',
 };
 
-const initialState = {
+const initialState: State = {
   selectedRideRequest: selectedRideRequestInitState,
+  selectedStatus: 'pending',
+  savedRideRequests: [],
 };
 
 export const bookingSlice = createSlice({
@@ -23,9 +32,16 @@ export const bookingSlice = createSlice({
     setSelectedRideRequest: (state, action: PayloadAction<RideRequest>) => {
       state.selectedRideRequest = action.payload;
     },
+    setSelectedStatus: (state, action: PayloadAction<RideStatus>) => {
+      state.selectedStatus = action.payload;
+    },
+    setSavedRideRequests: (state, action: PayloadAction<RideRequest[]>) => {
+      state.savedRideRequests = action.payload;
+    },
   },
 });
 
-export const {setSelectedRideRequest} = bookingSlice.actions;
+export const {setSelectedRideRequest, setSelectedStatus, setSavedRideRequests} =
+  bookingSlice.actions;
 
 export default bookingSlice.reducer;

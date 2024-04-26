@@ -8,24 +8,37 @@ import Icon from 'react-native-vector-icons/Entypo';
 import {SelectedRideModal} from '../components/SelectedRideModal';
 import {useBookingMutations} from '../services/mutations/booking';
 import {useRandomizeRideLocations} from '../hooks/useRandomizeRideLocations';
-import {useDispatch} from 'react-redux';
-import {setSelectedRideRequest} from '../redux/booking.slice';
+import {useDispatch, useSelector} from 'react-redux';
+import {
+  setSavedRideRequests,
+  setSelectedRideRequest,
+} from '../redux/booking.slice';
 import {Alert} from 'react-native';
+import {RootState} from '../../store';
+import {useNavigation} from '@react-navigation/native';
 
 export default function Home() {
   const dispatch = useDispatch();
+  const navigation = useNavigation();
   const {initialLocation, getInitialState} = useCurrentLocation();
   const {rideRequests} = useRandomizeRideLocations(initialLocation);
   const {onGetGeocodeName} = useBookingMutations();
   const [showSelected, setShowSelected] = useState<boolean>(false);
   const [selected, setSelected] = useState<RideRequest>(MockRideRequests[0]);
 
+  const {savedRideRequests} = useSelector((state: RootState) => state.booking);
+
   async function onPressRequest(item: RideRequest) {
+    const savedItem = savedRideRequests.find(
+      saved => saved.ride_id === item.ride_id,
+    );
+    const itemValue = savedItem?.ride_id === item.ride_id ? savedItem : item;
+
     const pickUpPayload = {
-      latlng: `${item.pickup.lat},${item.pickup.lng}`,
+      latlng: `${itemValue.pickup.lat},${itemValue.pickup.lng}`,
     };
     const dropOffPayload = {
-      latlng: `${item.dropoff.lat},${item.dropoff.lng}`,
+      latlng: `${itemValue.dropoff.lat},${itemValue.dropoff.lng}`,
     };
 
     try {
@@ -37,19 +50,41 @@ export default function Home() {
       )) as ReverseGeoCodeResponse;
 
       const mappedItem = {
-        ...item,
+        ...itemValue,
         pickup: {
-          ...item.pickup,
+          ...itemValue.pickup,
           name: pickup.results[0]?.formatted_address || 'Invalid Pick up',
         },
         dropoff: {
-          ...item.dropoff,
+          ...itemValue.dropoff,
           name: dropoff.results[0]?.formatted_address || 'Invalid Drop off',
         },
       };
-      setSelected(mappedItem);
-      dispatch(setSelectedRideRequest(mappedItem));
-      setShowSelected(true);
+
+      const isRequestSaved = savedItem?.status === 'dropped-off';
+      const isRequestDeclined = savedItem?.status === 'declined';
+      const isRequestOngoing =
+        savedItem?.ride_id &&
+        !['dropped-off', 'declined'].includes(itemValue?.status || '');
+
+      if (savedItem && isRequestDeclined) {
+        Alert.alert(
+          'Ride Request is Declined',
+          'Please select another request',
+        );
+      } else if (savedItem && isRequestSaved) {
+        Alert.alert('Ride Request is Done', 'Please select another request');
+      } else {
+        setSelected(mappedItem);
+        dispatch(setSelectedRideRequest(mappedItem));
+        dispatch(setSavedRideRequests([...savedRideRequests, mappedItem]));
+
+        if (isRequestOngoing) {
+          navigation.navigate('Request' as never);
+        } else {
+          setShowSelected(true);
+        }
+      }
     } catch (error) {
       Alert.alert('Something went wrong', 'Please try again');
     }

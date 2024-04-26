@@ -4,8 +4,8 @@ import {RideRequest} from '../types/booking';
 import MockRideRequests from '../mocks/RideRequests.json';
 import {randomizeCoordinateByRadius} from '../helpers/locationHelpers';
 
-const PickupRadius = 0.01;
-const DropOffRadius = 0.3;
+const PickupRadius = 0.005;
+const DropOffRadius = 0.1;
 
 export function useRandomizeRideLocations(initialLocation: Region | undefined) {
   const rideRequests = useMemo(() => {
@@ -27,6 +27,7 @@ export function useRandomizeRideLocations(initialLocation: Region | undefined) {
           initialLocation?.longitude || 0,
           DropOffRadius,
         );
+        item.status = 'pending';
 
         return item;
       });

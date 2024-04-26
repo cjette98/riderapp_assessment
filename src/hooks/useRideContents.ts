@@ -25,7 +25,7 @@ export function useRideContents(
       return `${minutesToDuration(Number(ride_duration_minutes))}`;
     }
     if (index === 2) {
-      return `₱${fare_amount}`;
+      return `₱${fare_amount.toFixed(2)}`;
     }
     return '';
   };
