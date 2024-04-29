@@ -17,7 +17,7 @@ const DECLINED_EXCLUDED_STATUS = ['declined', 'picked-up', 'dropped-off'];
 export function Request() {
   const dispatch = useDispatch();
   const navigation = useNavigation();
-  const {selectedRideRequest, selectedStatus, savedRideRequests} = useSelector(
+  const {selectedRideRequest, savedRideRequests} = useSelector(
     (state: RootState) => state.booking,
   );
   const {
@@ -67,6 +67,8 @@ export function Request() {
         return 'picked-up';
       case 'picked-up':
         return 'dropped-off';
+      case 'dropped-off':
+        return 'dropped-off';
       default:
         return 'declined';
     }
@@ -85,7 +87,7 @@ export function Request() {
   );
 
   const onPressAction = useCallback(() => {
-    if (statusText === 'Done') {
+    if (changedStatus === 'dropped-off') {
       navigation.goBack();
     }
     onSaveStatus(changedStatus);

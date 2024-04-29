@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {MapView} from '../components/MapView';
 import {Marker} from 'react-native-maps';
 import MockRideRequests from '../mocks/RideRequests.json';
@@ -17,6 +17,9 @@ import {Alert} from 'react-native';
 import {RootState} from '../../store';
 import {useNavigation} from '@react-navigation/native';
 
+const RequestOngoing: string[] = ['dropped-off', 'declined'];
+const RequestAccepted: string[] = ['accepted', 'started', 'picked-up'];
+
 export default function Home() {
   const dispatch = useDispatch();
   const navigation = useNavigation();
@@ -28,67 +31,78 @@ export default function Home() {
 
   const {savedRideRequests} = useSelector((state: RootState) => state.booking);
 
-  async function onPressRequest(item: RideRequest) {
-    const savedItem = savedRideRequests.find(
-      saved => saved.ride_id === item.ride_id,
-    );
-    const itemValue = savedItem?.ride_id === item.ride_id ? savedItem : item;
-
-    const pickUpPayload = {
-      latlng: `${itemValue.pickup.lat},${itemValue.pickup.lng}`,
-    };
-    const dropOffPayload = {
-      latlng: `${itemValue.dropoff.lat},${itemValue.dropoff.lng}`,
-    };
-
-    try {
-      const pickup = (await onGetGeocodeName.mutateAsync(
-        pickUpPayload,
-      )) as ReverseGeoCodeResponse;
-      const dropoff = (await onGetGeocodeName.mutateAsync(
-        dropOffPayload,
-      )) as ReverseGeoCodeResponse;
-
-      const mappedItem = {
-        ...itemValue,
-        pickup: {
-          ...itemValue.pickup,
-          name: pickup.results[0]?.formatted_address || 'Invalid Pick up',
-        },
-        dropoff: {
-          ...itemValue.dropoff,
-          name: dropoff.results[0]?.formatted_address || 'Invalid Drop off',
-        },
-      };
-
-      const isRequestSaved = savedItem?.status === 'dropped-off';
+  const onPressRequest = useCallback(
+    async (item: RideRequest) => {
+      const savedItem = savedRideRequests.find(
+        saved => saved.ride_id === item.ride_id,
+      );
+      const itemValue = savedItem?.ride_id === item.ride_id ? savedItem : item;
+      const isRequestDone = savedItem?.status === 'dropped-off';
+      const hasOngoingRequest = savedRideRequests.some(
+        saved =>
+          RequestAccepted.includes(saved?.status || '') &&
+          saved.ride_id !== item.ride_id,
+      );
       const isRequestDeclined = savedItem?.status === 'declined';
       const isRequestOngoing =
-        savedItem?.ride_id &&
-        !['dropped-off', 'declined'].includes(itemValue?.status || '');
+        savedItem?.ride_id && !RequestOngoing.includes(itemValue?.status || '');
 
-      if (savedItem && isRequestDeclined) {
-        Alert.alert(
-          'Ride Request is Declined',
-          'Please select another request',
-        );
-      } else if (savedItem && isRequestSaved) {
-        Alert.alert('Ride Request is Done', 'Please select another request');
-      } else {
-        setSelected(mappedItem);
-        dispatch(setSelectedRideRequest(mappedItem));
-        dispatch(setSavedRideRequests([...savedRideRequests, mappedItem]));
+      const pickUpPayload = {
+        latlng: `${itemValue.pickup.lat},${itemValue.pickup.lng}`,
+      };
+      const dropOffPayload = {
+        latlng: `${itemValue.dropoff.lat},${itemValue.dropoff.lng}`,
+      };
 
-        if (isRequestOngoing) {
-          navigation.navigate('Request' as never);
+      try {
+        const pickup = (await onGetGeocodeName.mutateAsync(
+          pickUpPayload,
+        )) as ReverseGeoCodeResponse;
+        const dropoff = (await onGetGeocodeName.mutateAsync(
+          dropOffPayload,
+        )) as ReverseGeoCodeResponse;
+
+        const mappedItem = {
+          ...itemValue,
+          pickup: {
+            ...itemValue.pickup,
+            name: pickup.results[0]?.formatted_address || 'Invalid Pick up',
+          },
+          dropoff: {
+            ...itemValue.dropoff,
+            name: dropoff.results[0]?.formatted_address || 'Invalid Drop off',
+          },
+        };
+
+        if (savedItem && isRequestDeclined) {
+          Alert.alert(
+            'Ride Request is Declined',
+            'Please select another request',
+          );
+        } else if (hasOngoingRequest) {
+          Alert.alert(
+            'You have an ongoing request',
+            'Please finish the request first before accepting another request',
+          );
+        } else if (savedItem && isRequestDone) {
+          Alert.alert('Ride Request is Done', 'Please select another request');
         } else {
-          setShowSelected(true);
+          setSelected(mappedItem);
+          if (isRequestOngoing) {
+            navigation.navigate('Request' as never);
+          } else {
+            setShowSelected(true);
+            dispatch(setSelectedRideRequest(mappedItem));
+            dispatch(setSavedRideRequests([...savedRideRequests, mappedItem]));
+          }
         }
+      } catch (error) {
+        Alert.alert('Something went wrong', 'Please try again');
       }
-    } catch (error) {
-      Alert.alert('Something went wrong', 'Please try again');
-    }
-  }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [savedRideRequests],
+  );
 
   useEffect(() => {
     getInitialState();
